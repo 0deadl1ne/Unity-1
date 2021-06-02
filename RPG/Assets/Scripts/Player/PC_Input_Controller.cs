@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.EventSystems;
 
 public class PC_Input_Controller 
 {
@@ -13,6 +14,7 @@ public class PC_Input_Controller
     private bool _rightPointerClicked;
 
     public Action<Vector3, Collider> RightPointerClickHandler = delegate { };
+    public Action CharacterWindowClicked = delegate { };
 
     // Start is called before the first frame update
     public PC_Input_Controller(Service_Manager service_Manager)
@@ -30,13 +32,21 @@ public class PC_Input_Controller
     // Update is called once per frame
     private void OnUpdate()
     {
-        _rightPointerClicked = Input.GetButton("Fire2");
-        Debug.Log("Update");
+        if (!EventSystem.current.IsPointerOverGameObject())
+        {
+            _rightPointerClicked = Input.GetButton("Fire1");
+        }
+
+        if (Input.GetKeyUp(KeyCode.I))
+        {
+            CharacterWindowClicked();
+        }
+        
     }
 
     private void OnLateUpdate()
     {
-        Debug.Log("LateUpdate");
+        
     }
 
     private void OnFixedUpdate()
@@ -49,7 +59,7 @@ public class PC_Input_Controller
                 RightPointerClickHandler(hitinfo.point, hitinfo.collider);
             }
         }
-        Debug.Log("FixedUpdate");
+        
     }
 
     private void OnDestroy()

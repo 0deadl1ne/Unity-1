@@ -19,12 +19,8 @@ namespace Items
             _itemBase = itemBase;
         }
 
-        public virtual void Use()
-        {
-
-
-
-        }
+        public abstract bool Use();
+        
 
         public void SetOwner(Player_Creature player)
         {
@@ -47,10 +43,10 @@ namespace Items
             ReadableBase = itemBase;
         }
 
-        public override void Use()
+        public override bool Use()
         {
-            base.Use();
             Debug.Log("Reading text");
+            return true;
         }
 
         
@@ -66,12 +62,18 @@ namespace Items
             PotionBase = itemBase;
         }
 
-        public override void Use()
+        public override bool Use()
         {
-            
+            CurrentStackCount -= 1;
             Debug.Log("Restoreed " + RestorationAmount + "stat");
-       
+            if (CurrentStackCount <= 0)
+            {
+                return true;
+            }
+            return false;
         }
+
+        
 
     }
 
@@ -84,11 +86,13 @@ namespace Items
             EquipmentBase = itemBase;
         }
 
-        public override void Use()
+        public override bool Use()
         {
-            base.Use();
-            Debug.Log("Equipment");
+            _owner.PlayerEquipmentController.EquipItem(this);
+            return false;
         }
+
+        
 
     }
 
@@ -101,10 +105,15 @@ namespace Items
             EquipmentBase = itemBase;
         }
 
-        public override void Use()
+        public override bool Use()
         {
-            base.Use();
+            CurrentStackCount -= 1;
             Debug.Log("Start adding component to equipment");
+            if (CurrentStackCount <= 0)
+            {
+                return true;
+            }
+            return false;
         }
 
         

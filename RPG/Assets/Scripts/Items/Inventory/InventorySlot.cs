@@ -1,48 +1,71 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Items;
-using UnityEngine.EventSystems;
+using System;
+using Player;
 
-public class InventorySlot : MonoBehaviour, IPointerClickHandler
+public class InventorySlot : MonoBehaviour, IPointerDownHandler
 {
-    private Item2 _currentItem;
-    [SerializeField] private Image _slotImage;
+    [SerializeField] protected Image _slotImage;
 
+
+    public bool IsEquiped { get; private set; }
+    public Item2 SlotItem { get; private set; }
+    public bool SlotInteractable { get; protected set; }
+    public Player_Creature PlayerCreature { get; set; }
+
+    public Action<InventorySlot> LeftPointerClicked = delegate { };
+    public Action<InventorySlot> RightPointerClicked = delegate { };
     public void AddItemToSlot(Item2 item)
     {
-        _slotImage.sprite = item.InventoryIcon;
+        if (IsEquiped)
+            RemoveItem();
+
+        SlotItem = item;
+        IsEquiped = true;
+        _slotImage.sprite = SlotItem.InventoryIcon;
         _slotImage.color = Color.white;
-        _currentItem = item;
+        
     }
 
-    public void RemoveItem()
+    public virtual void RemoveItem()
     {
         _slotImage.sprite = null;
         _slotImage.color = Color.clear;
-        _currentItem = null;
+        SlotItem = null;
+        IsEquiped = false;
     }
 
-    private void OnLeftClick()
-    {
-        Debug.Log("LeftClick");
-    }
-
-    private void OnRightClick()
-    {
-        Debug.Log("RightClick");
-    }
-
-    public void OnPointerClick(PointerEventData eventData)
+    public virtual void OnPointerDown(PointerEventData eventData)
     {
         if (eventData.button == PointerEventData.InputButton.Left)
         {
-            OnLeftClick();
+            OnLeftPointerDown();
         }
-        else if (eventData.button == PointerEventData.InputButton.Right)
+
+        if (eventData.button == PointerEventData.InputButton.Right)
         {
-            OnRightClick();
+            if (PlayerCreature.Player_Inventory_Controller.MovingItem != null)
+                return;
+            OnRightPointerDown();
         }
     }
+
+    protected virtual void OnLeftPointerDown()
+    {
+        LeftPointerClicked(this);
+        Debug.Log("LeftClick");
+    }
+
+    private void OnRightPointerDown()
+    {
+        if (!IsEquiped)
+            return;
+
+        RightPointerClicked(this);
+        Debug.Log("RightClick");
+    }
+
+    
 }
